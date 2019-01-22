@@ -11,26 +11,29 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * UserControllern
  */
 @Controller
+// 대표url을 지정함으로써, 중복을 제거한다.
+@RequestMapping("/users")
 public class UserController {
 
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/create")
+    @PostMapping("")
     public String create(User user) {
         System.out.println("user: " + user);
         userRepository.save(user);// db에 값 추가
-        return "redirect:/list";
+        return "redirect:/users";
     }
 
-    @GetMapping("/list")
+    @GetMapping("")
     public String list(Model model) {
         model.addAttribute("users", userRepository.findAll());
-        return "list";
+        return "/user/list";
     }
 }

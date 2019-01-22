@@ -430,9 +430,10 @@
 
 > - 3-1. QnA HTML 템플릿, H2 데이터베이스 설치, 설정 관리툴 확인
 > - 3-2. 자바 객체와 테이블 매핑, 회원가입 기능 구현
-> - ㄹ
-> - 3-4. 질문하기, 질문목록 기능 구현
-> - 3-5. 원격 서버에 소스 코드 배포
+> - 3-3  HTML 정리, URL 정리
+> - 3-4 개인정보 수정 기능 구현
+> - 3-5. 질문하기, 질문목록 기능 구현
+> - 3-6. 원격 서버에 소스 코드 배포
 
 
 
@@ -561,6 +562,85 @@
 ### 잘 모르겠는 내용
 
 > 1. @Autowired에 대해서
+
+
+
+
+
+### 3-3 HTML 정리, URL 정리
+
+
+
+### 메모
+
+> - UserController를 다음과 같이 수정한다.
+>
+>   ```java 
+>   
+>   @Controller
+>   public class UserController {
+>   
+>       @Autowired
+>       private UserRepository userRepository;
+>   
+>       @PostMapping("/user/create")
+>       public String create(User user) {
+>           System.out.println("user: " + user);
+>           userRepository.save(user);// db에 값 추가
+>           //user폴더에 list.html로 리다이렉팅 한다.
+>           return "redirect:/user/list";
+>       }
+>   
+>       @GetMapping("/user/list")
+>       public String list(Model model) {
+>           model.addAttribute("users", userRepository.findAll());
+>           //user 폴더에 list.html로 매핑된다.
+>           return "/user/list";
+>       }
+>   }
+>   
+>   ```
+>
+>   
+>
+> - Controller의 중복을 제거하면, 이와같이 쓸 수도 있다.
+>
+>   ```java 
+>   
+>   @Controller
+>   // 대표url을 지정함으로써, 중복을 제거한다.
+>   @RequestMapping("/users")
+>   public class UserController {
+>   
+>       @Autowired
+>       private UserRepository userRepository;
+>   
+>       @PostMapping("")
+>       public String create(User user) {
+>           System.out.println("user: " + user);
+>           userRepository.save(user);// db에 값 추가
+>           return "redirect:/users";
+>       }
+>   
+>       @GetMapping("")
+>       public String list(Model model) {
+>           model.addAttribute("users", userRepository.findAll());
+>           return "/user/list";
+>       }
+>   }
+>   
+>   ```
+>
+> - Mustache 사용해서 html 중복 코드 제거
+>
+>   ```html
+>   {{> /include/navigation}} 
+>   
+>   //이런 식으로 include 이하에 각각 파트를 나눈 html을 만들고,
+>   //위의 방식 대로 넣어주면 된다.
+>   ```
+>
+>   
 
 
 

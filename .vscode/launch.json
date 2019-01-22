@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - KpjQnAApplication",
+            "request": "launch",
+            "mainClass": "com.example.demo.KpjQnAApplication",
+            "projectName": "kpjQnA"
+        }
+    ]
+}

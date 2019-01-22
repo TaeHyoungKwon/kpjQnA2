@@ -49,7 +49,7 @@
 >
 > - spring boot project
 >
->   - Web/mustache/dev-tools
+>   - Web/mustache/dev-tools(변경사항있을 시, 자동 재시작해줌)
 >
 > - Hello World" welcom 페이지
 >
@@ -335,118 +335,72 @@
 >
 >     
 
+
+
+
+
 ### 2-3 사용자 목록 기능 구현
 
 
 
 #### 메모
 
-> - GET , POST 사용
+> - 현재는 단순히 출력만 한다.
 >
->   - GET
->     - 데이터를 가져올 때 쓴다.
->     - 사용자 목록, 특정 회원 정보 등
->   - POST
->     - 서버에 데이터를 전송해서, 새로운 데이터를 추가 혹은 수정 할 떄 사용
->     - 로그인, 회원가입 등
+> - 사용자 목록을 보여주려면, 서버에 값을 가지고 있어야 하는데,
 >
-> - 넘어가는 매개변수가 너무 길다.
+> - 회원가입한 사용자를 저장할 수 있는 List collection을 사용한다.
 >
 >   ```java 
->   @Controller
->   public class UserController {
+>   private List<User> users = new ArrayList<User>();private List<User> users = new ArrayList<User>();
+>   
 >       @PostMapping("/create")
->       public String create(String userId, String userPassword, String userName, String userEmail) {
->           System.out.println("userId: " + userId);
->           return "index";
+>       public String create(User user) {
+>           System.out.println("user: " + user);
+>           users.add(user);//users에 user를 추가한다.
+>           return "redirect:/list";
 >       }
->   }
 >   ```
 >
->   - 각각을 일일이 넘기지 말고, 객체로 넘기면 코드를 깔끔하게 유지할 수 있다.
+>   
 >
->   - User.java 파일을 따로 만들고, 데이터를 저장할 User class를 생성한다.
+> - 위에서 List collection의 users 가 static이 아니여도 되는 이유
 >
->   - get,set method를 만들어주고, toString도 만들어 준다. - 자동생성하자
+>   - Controller 인스턴스가 Spring에 의해 관리되고 있는데, 서버가 동작하는 한 개의 인스턴스가 생성되어 재사용되는 구조
+>   - 따라서, 굳이 static을 사용하지 않아도 똑같은 효과를 낸다.
+>   - Spring을 사용하는 이유중 하나가 Single 인스턴스 관리를 static을 사용하지 않고 가능하기 때문
 >
->     ```java 
->     package com.example.demo.web;
->     
->     /**
->      * User
->      */
->     public class User {
->     
->         private String userId;
->         private String userPassword;
->         private String userName;
->         private String userEmail;
->     
->         public String getUserId() {
->             return this.userId;
->         }
->     
->         public void setUserId(String userId) {
->             this.userId = userId;
->         }
->     
->         public String getUserPassword() {
->             return this.userPassword;
->         }
->     
->         public void setUserPassword(String userPassword) {
->             this.userPassword = userPassword;
->         }
->     
->         public String getUserName() {
->             return this.userName;
->         }
->     
->         public void setUserName(String userName) {
->             this.userName = userName;
->         }
->     
->         public String getUserEmail() {
->             return this.userEmail;
->         }
->     
->         public void setUserEmail(String userEmail) {
->             this.userEmail = userEmail;
->         }
->     
->         @Override
->         public String toString() {
->             return "{" + " userId='" + getUserId() + "'" + ", userPassword='" + getUserPassword() + "'" + ", userName='"
->                     + getUserName() + "'" + ", userEmail='" + getUserEmail() + "'" + "}";
->         }
->     
->     }
->     ```
+>   
 >
->     
+> - 템플릿 반영할 때, 재시작 안하고 반영하기 위한 설정
 >
->     기존 UserController.java는 아래와 같이 깔끔하게 코드를 줄일 수 있다.
+>   ```java 
+>   //application.properties
+>   handlebars.cache=false
+>   ```
 >
->     ```java 
->     //이렇게 깔끔해진다..
->     
->     @Controller
->     public class UserController {
->         @PostMapping("/create")
->         public String create(User user) {
->             System.out.println("user: " + user);
->             return "index";
->         }
->     }
->     ```
+>   
 >
->     ```java 
->     user: { userId='kwon5604', userPassword='fv3528no!', userName='sdafasdf', userEmail='kwon5604@naver.com'}
->     ```
+> - mustach 문법 if 문
 >
->     - 더하여서, toString()의 영향으로 위와 같이 깔끔하게 저장하고 있는 유저정보에 대해서 출력까지 해준다.
+>   ```html
+>   {{#users}}
+>       <tr>
+>           <th scope="row">1</th>
+>           <td>{{ userId }}</td>
+>           <td>{{ userName }}</td>
+>           <td>{{ userEmail }}</td>
+>       </tr>
+>   {{/users}}
+>   ```
 >
->     
+>   
 
 
+
+#### 잘 모르겠는 내용
+
+> 1. Spring을 사용하는 이유중 하나가 Single 인스턴스 관리를 static을 사용하지 않고 가능하기 때문 ???
+> 2. Controller 인스턴스가 Spring에 의해 관리되고 있는데, 서버가 동작하는 한 개의 인스턴스가 생성되어 재사용되는 구조???
+> 3. Contoller도 Bean 이고 Bean은 기본적으로 싱글톤이기 때문???
 

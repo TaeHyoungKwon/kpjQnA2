@@ -733,8 +733,91 @@
 
 ### 메모
 
-> - 
+> - 로그인 세션 유지 관련
+>
+>   ```java 
+>    @PostMapping("/login")
+>       public String login(String userId, String userPassword, HttpSession session) {
+>   
+>           // userId로 찾고 싶을 때, 그러나, 현재 pk는 Long id 값이다.
+>           // userId 기반으로 찾고 싶다면?
+>           // userRepository Interface에 findeByuserId관련 설정해야한다.
+>           User user = userRepository.findByUserId(userId);
+>   
+>           // 1. userId에 해당하는 유저가 존재해야한다.
+>           // 아닐 시 loginForm으로 리다이렉팅한다.
+>           if (user == null) {
+>               System.out.println("Login Failed!");
+>               return "redirect:/users/loginForm";
+>           }
+>   
+>           // 2. 입력받은 userPassword가 저장되어있는 password와 같아야 한다.
+>           // 아닐 시 loginForm으로 리다이렉팅한다.
+>           if (!userPassword.equals(user.getUserPassword())) {
+>               System.out.println("Login Failed!");
+>               return "redirect:/users/loginForm";
+>           }
+>   
+>           // 3.세션을 등록한다
+>           System.out.println("Login Success!");
+>           session.setAttribute("user", user);
+>   
+>           return "redirect:/";
+>   ```
+>
+>   ```java 
+>   public interface UserRepository extends JpaRepository<User, Long> {
+>       // 이를 통해 userId를 통해서 유저를 찾을 수 있다.
+>       User findByUserId(String userId);
+>   }
+>   ```
+>
+> - 언어 선택 문제 
+>
+>   ```json
+>   "files.associations": {
+>       "*.html": "html"
+>     }
+>   ```
+>
+>   
+
+
+
+### 4-2 로그인 상태에 따른 메뉴 처리 및 로그아웃
+
+
+
+### 메모
+
+> * 데이터베이스 초기화 방법
+>
+>   > 1. /resources/import.sql 파일을 생성한다.
+>   >
+>   > 2. Insert 쿼리를 통해 값을 넣는다.
+>   >
+>   >    ![image-20190122171428996](assets/image-20190122171428996.png)
+>
+> * session을 모델에 담아서 mustach에 넘기는 법
+>
+>   ```java 
+>   //설정을 해준다.
+>   spring.mustache.expose-session-attributes=true
+>   ```
+>
+> * 로그아웃
+>
+>   ```java 
+>   @GetMapping("/logout")
+>       public String logout(HttpSession session) {
+>           session.removeAttribute("user");
+>           return "redirect:/";
+>       }
+>   ```
+>
+>   
 
 
 
 ### 
+

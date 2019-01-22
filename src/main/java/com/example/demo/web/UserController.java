@@ -12,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -49,5 +50,17 @@ public class UserController {
         // userRepository 상에서 id 값에 해당하는 유저를 user로 넘긴다.
         model.addAttribute("user", userRepository.findById(id).get());
         return "/user/updateForm";
+    }
+
+    @PutMapping("/{id}")
+    public String update(@PathVariable Long id, User newUser) {
+
+        // 수정할 사용자의 id 값과 수정할 newUser User객체를 받는다.
+        User user = userRepository.findById(id).get();
+        // newUser 객체는 update를 통해서 새롭게 set 된다.
+        user.update(newUser);
+        // 바뀐 객체를 저장한다. -> 수정 완료
+        userRepository.save(user);
+        return "redirect:/users";
     }
 }

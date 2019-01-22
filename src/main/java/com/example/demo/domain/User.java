@@ -58,4 +58,12 @@ public class User {
                 + getUserName() + "'" + ", userEmail='" + getUserEmail() + "'" + "}";
     }
 
+    public void update(User newUser) {
+        this.userPassword = newUser.userPassword;
+        this.userId = newUser.userId;
+        this.userName = newUser.userName;
+        this.userEmail = newUser.userEmail;
+
+    }
+
 }

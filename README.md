@@ -351,6 +351,10 @@
 >
 > - 회원가입한 사용자를 저장할 수 있는 List collection을 사용한다.
 >
+> - 그러나, 이것은 잠시 메인 메모리에 저장하기 때문에, 서버를 재시작 하면, 데이터가 사라진다.
+>
+> - 영구적으로 저장할 수 있는 DB가 필요하다.
+>
 >   ```java 
 >   private List<User> users = new ArrayList<User>();private List<User> users = new ArrayList<User>();
 >   
@@ -403,4 +407,8 @@
 > 1. Spring을 사용하는 이유중 하나가 Single 인스턴스 관리를 static을 사용하지 않고 가능하기 때문 ???
 > 2. Controller 인스턴스가 Spring에 의해 관리되고 있는데, 서버가 동작하는 한 개의 인스턴스가 생성되어 재사용되는 구조???
 > 3. Contoller도 Bean 이고 Bean은 기본적으로 싱글톤이기 때문???
+
+
+
+### 2-4, 2-5는 생략
 

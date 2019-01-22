@@ -218,3 +218,235 @@
 
 > 1. Model 클래스의 addAttribute 메소드에 대해서
 
+
+
+
+
+### 2-2 회원가입 기능 구현
+
+
+
+#### 메모
+
+> * GET , POST 사용
+>
+>   * GET
+>     * 데이터를 가져올 때 쓴다.
+>     * 사용자 목록, 특정 회원 정보 등
+>   * POST
+>     * 서버에 데이터를 전송해서, 새로운 데이터를 추가 혹은 수정 할 떄 사용
+>     * 로그인, 회원가입 등
+>
+> * 넘어가는 매개변수가 너무 길다.
+>
+>   ```java 
+>   @Controller
+>   public class UserController {
+>       @PostMapping("/create")
+>       public String create(String userId, String userPassword, String userName, String userEmail) {
+>           System.out.println("userId: " + userId);
+>           return "index";
+>       }
+>   }
+>   ```
+>
+>   * 각각을 일일이 넘기지 말고, 객체로 넘기면 코드를 깔끔하게 유지할 수 있다.
+>
+>   * User.java 파일을 따로 만들고, 데이터를 저장할 User class를 생성한다.
+>
+>   * get,set method를 만들어주고, toString도 만들어 준다. - 자동생성하자
+>
+>     ```java 
+>     package com.example.demo.web;
+>     
+>     /**
+>      * User
+>      */
+>     public class User {
+>     
+>         private String userId;
+>         private String userPassword;
+>         private String userName;
+>         private String userEmail;
+>     
+>         public String getUserId() {
+>             return this.userId;
+>         }
+>     
+>         public void setUserId(String userId) {
+>             this.userId = userId;
+>         }
+>     
+>         public String getUserPassword() {
+>             return this.userPassword;
+>         }
+>     
+>         public void setUserPassword(String userPassword) {
+>             this.userPassword = userPassword;
+>         }
+>     
+>         public String getUserName() {
+>             return this.userName;
+>         }
+>     
+>         public void setUserName(String userName) {
+>             this.userName = userName;
+>         }
+>     
+>         public String getUserEmail() {
+>             return this.userEmail;
+>         }
+>     
+>         public void setUserEmail(String userEmail) {
+>             this.userEmail = userEmail;
+>         }
+>     
+>         @Override
+>         public String toString() {
+>             return "{" + " userId='" + getUserId() + "'" + ", userPassword='" + getUserPassword() + "'" + ", userName='"
+>                     + getUserName() + "'" + ", userEmail='" + getUserEmail() + "'" + "}";
+>         }
+>     
+>     }
+>     ```
+>
+>     
+>
+>     기존 UserController.java는 아래와 같이 깔끔하게 코드를 줄일 수 있다.
+>
+>     ```java 
+>     //이렇게 깔끔해진다..
+>     
+>     @Controller
+>     public class UserController {
+>         @PostMapping("/create")
+>         public String create(User user) {
+>             System.out.println("user: " + user);
+>             return "index";
+>         }
+>     }
+>     ```
+>
+>     ```java 
+>     user: { userId='kwon5604', userPassword='fv3528no!', userName='sdafasdf', userEmail='kwon5604@naver.com'}
+>     ```
+>
+>     * 더하여서, toString()의 영향으로 위와 같이 깔끔하게 저장하고 있는 유저정보에 대해서 출력까지 해준다.
+>
+>     
+
+### 2-3 사용자 목록 기능 구현
+
+
+
+#### 메모
+
+> - GET , POST 사용
+>
+>   - GET
+>     - 데이터를 가져올 때 쓴다.
+>     - 사용자 목록, 특정 회원 정보 등
+>   - POST
+>     - 서버에 데이터를 전송해서, 새로운 데이터를 추가 혹은 수정 할 떄 사용
+>     - 로그인, 회원가입 등
+>
+> - 넘어가는 매개변수가 너무 길다.
+>
+>   ```java 
+>   @Controller
+>   public class UserController {
+>       @PostMapping("/create")
+>       public String create(String userId, String userPassword, String userName, String userEmail) {
+>           System.out.println("userId: " + userId);
+>           return "index";
+>       }
+>   }
+>   ```
+>
+>   - 각각을 일일이 넘기지 말고, 객체로 넘기면 코드를 깔끔하게 유지할 수 있다.
+>
+>   - User.java 파일을 따로 만들고, 데이터를 저장할 User class를 생성한다.
+>
+>   - get,set method를 만들어주고, toString도 만들어 준다. - 자동생성하자
+>
+>     ```java 
+>     package com.example.demo.web;
+>     
+>     /**
+>      * User
+>      */
+>     public class User {
+>     
+>         private String userId;
+>         private String userPassword;
+>         private String userName;
+>         private String userEmail;
+>     
+>         public String getUserId() {
+>             return this.userId;
+>         }
+>     
+>         public void setUserId(String userId) {
+>             this.userId = userId;
+>         }
+>     
+>         public String getUserPassword() {
+>             return this.userPassword;
+>         }
+>     
+>         public void setUserPassword(String userPassword) {
+>             this.userPassword = userPassword;
+>         }
+>     
+>         public String getUserName() {
+>             return this.userName;
+>         }
+>     
+>         public void setUserName(String userName) {
+>             this.userName = userName;
+>         }
+>     
+>         public String getUserEmail() {
+>             return this.userEmail;
+>         }
+>     
+>         public void setUserEmail(String userEmail) {
+>             this.userEmail = userEmail;
+>         }
+>     
+>         @Override
+>         public String toString() {
+>             return "{" + " userId='" + getUserId() + "'" + ", userPassword='" + getUserPassword() + "'" + ", userName='"
+>                     + getUserName() + "'" + ", userEmail='" + getUserEmail() + "'" + "}";
+>         }
+>     
+>     }
+>     ```
+>
+>     
+>
+>     기존 UserController.java는 아래와 같이 깔끔하게 코드를 줄일 수 있다.
+>
+>     ```java 
+>     //이렇게 깔끔해진다..
+>     
+>     @Controller
+>     public class UserController {
+>         @PostMapping("/create")
+>         public String create(User user) {
+>             System.out.println("user: " + user);
+>             return "index";
+>         }
+>     }
+>     ```
+>
+>     ```java 
+>     user: { userId='kwon5604', userPassword='fv3528no!', userName='sdafasdf', userEmail='kwon5604@naver.com'}
+>     ```
+>
+>     - 더하여서, toString()의 영향으로 위와 같이 깔끔하게 저장하고 있는 유저정보에 대해서 출력까지 해준다.
+>
+>     
+
+
+

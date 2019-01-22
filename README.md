@@ -430,7 +430,139 @@
 
 > - 3-1. QnA HTML 템플릿, H2 데이터베이스 설치, 설정 관리툴 확인
 > - 3-2. 자바 객체와 테이블 매핑, 회원가입 기능 구현
-> - 3-3. 개인정보 수정 기능 구현
+> - ㄹ
 > - 3-4. 질문하기, 질문목록 기능 구현
 > - 3-5. 원격 서버에 소스 코드 배포
+
+
+
+### 3-1 QnA HTML 템플릿, H2 데이터베이스 설치, 설정 관리툴 확인
+
+
+
+### 메모
+
+> - h2 데이터베이스 설치는 Maven을 통해서 간단히 설치 가능
+> - http://localhost:8080/h2-console/ 로 접속
+> - h2 데이터베이스 설치 후, pom.xml 에서 <scope>test<scope> 이거 삭제해줘야된다.
+
+
+
+### 3-2 자바 객체와 테이블 매핑, 회원가입 기능 구현
+
+
+
+### 메모
+
+> * h2 접속 관련
+>
+>   * Application.properties에 다음 설정 값을 추가
+>
+>     ```java 
+>     spring.datasource.url=jdbc:h2:~/kpjQnA;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+>     spring.datasource.driverClassName=org.h2.Driver
+>     spring.datasource.username=sa
+>     spring.datasource.password=
+>     spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+>     ```
+>
+>     ```java 
+>     //로그인 할 때 다음 경로로 로그인 한다.
+>     jdbc:h2:~/kpjQnA
+>     ```
+>
+>     ![image-20190122122657210](assets/image-20190122122657210.png)
+>
+>   
+>
+> * jpa 추가 -> Maven Repository에서 추가한다.
+>
+> * User 클래스에 데이터베이스와 매핑하는 애노테이션을 추가한다.
+>
+>   ```java 
+>   @Entity // User 클래스에 데이터베이스와 매핑하는 애노테이션을 추가
+>   public class User {
+>       @Id
+>       @GeneratedValue
+>       private Long id; // @Id로 primary key 지정, @GeneratedValue == Auto Increment
+>   
+>       @Column(nullable = false) // null 관리
+>       private String userId;
+>       private String userPassword;
+>       private String userName;
+>       private String userEmail;
+>   ```
+>
+>   ![image-20190122122756853](assets/image-20190122122756853.png)
+>
+>   * 위와 같이 db 테이블이 만들어진 것을 확인할 수 있다.
+>
+> * 데이터베이스에 데이터를 조회 혹은 삽입하려면 인터페이스를 만들어야 한다.
+>
+>   ```java 
+>   //UserRepository
+>   
+>   package com.example.demo.domain;
+>   
+>   import org.springframework.data.jpa.repository.JpaRepository;
+>   
+>   // JpaRepository는 User에 대한 repository 이고, 두번쨰는 User의 primary Key 타입 
+>   // 기본적으로 데이터베이스에 저장하고, 조회하는 기능 구현은 끝
+>   public interface UserRepository extends JpaRepository<User, Long> {
+>   
+>   }
+>   ```
+>
+> * 만들어진 UserRepository를 쓰기위해서는 @Autowired를 이용해서 땡겨서 쓴다.???
+>
+>   ```java 
+>   @Controller
+>   public class UserController {
+>       private List<User> users = new ArrayList<User>();
+>   
+>       //UserRepository 인터페이스를 따로 구현해서 쓰지 않고,
+>       //다음과 같이 @Autowired 애노테이션을 이용해서 바로 가져다가 사용한다.
+>       @Autowired
+>       private UserRepository userRepository;
+>   
+>       @PostMapping("/create")
+>       public String create(User user) {
+>           System.out.println("user: " + user);
+>           users.add(user);
+>           //JpaRepository 내부 어딘가에 save는 구현이 되어있다.
+>           userRepository.save(user);// db에 값 추가한다.
+>           return "redirect:/list";
+>       }
+>       //...
+>   }
+>       
+>   ```
+>   * 정상적으로 DB에 값이 들어가면, 아래와 같이 보인다.
+>
+>     ![image-20190122123845564](assets/image-20190122123845564.png)
+>
+>   
+>
+> * 데이터베이스에서 값 가져오기(유저 리스트)
+>
+>   ```java 
+>    @GetMapping("/list")
+>       public String list(Model model) {
+>           //List collection 객체 users를 userRepository.findAll()로 교체
+>           model.addAttribute("users", userRepository.findAll());
+>           return "list";
+>       }
+>   ```
+>
+>   
+
+
+
+### 잘 모르겠는 내용
+
+> 1. @Autowired에 대해서
+
+
+
+
 

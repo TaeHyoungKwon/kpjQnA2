@@ -646,3 +646,24 @@
 
 
 
+### 3-4 개인정보 수정 기능 구현-1
+
+
+
+### 메모
+
+> - 주소창에서 입력받은 id 값 메소드에 넘길 때
+>
+>   ```java 
+>   @GetMapping("/{id}/form")
+>       public String updateForm(@PathVariable Long id) {
+>           return "/user/updateForm";
+>       }
+>   ```
+>
+>   * @PathVariable을 사용한다.
+
+
+
+
+

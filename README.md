@@ -1135,6 +1135,13 @@ public class Question {
 ### 메모
 
 ```java 
-
+ public boolean isSameWriter(User loginUser) {
+     	//User 객체끼리 비교하는 것이기 때문에, User.java에서 equals를 만들어줘야 정상동작한다.
+        System.out.println("==========isSameWrite==========");
+        System.out.println(loginUser.getId());
+        System.out.println(this.writer.getId());
+        System.out.println("==========isSameWrite==========");
+        return this.writer.equals(loginUser);
+    }
 ```
 

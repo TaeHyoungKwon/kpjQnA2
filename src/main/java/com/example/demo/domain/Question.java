@@ -2,6 +2,7 @@ package com.example.demo.domain;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,6 +34,11 @@ public class Question {
 
     }
 
+    public Long getId() {
+        return id;
+
+    }
+
     public Question(User writer, String title, String contents) {
         this.writer = writer;
         this.title = title;
@@ -54,4 +60,29 @@ public class Question {
         this.title = title;
         this.contents = contents;
     }
+
+    public boolean isSameWriter(User loginUser) {
+        System.out.println("==========isSameWrite==========");
+        System.out.println(loginUser.getId());
+        System.out.println(this.writer.getId());
+        System.out.println("==========isSameWrite==========");
+        return this.writer.equals(loginUser);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Question)) {
+            return false;
+        }
+        Question question = (Question) o;
+        return Objects.equals(id, question.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
 }

@@ -65,22 +65,62 @@ public class QuestionController {
 
     // updateForm에 질문 객체를 전달한다.
     @GetMapping("/{id}/form")
-    public String updateForm(@PathVariable Long id, Model model) {
-        model.addAttribute("question", questionRepository.findById(id).get());
+    public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+        // 로그인 했는지 확인
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            return "/users/loginForm";
+        }
+
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
+        Question question = questionRepository.findById(id).get();
+
+        // 로그인한 유저가, 글쓴 유저와 일치하는지 확인
+        if (!question.isSameWriter(loginUser)) {
+            return "/users/loginForm";
+        }
+        model.addAttribute("question", question);
         return "/qna/updateForm";
     }
 
     // form으로 부터 전달받은 값을 통해서, 디비 값을 update 한다.
     @PutMapping("/{id}")
-    public String update(@PathVariable Long id, String title, String contents) {
+    public String update(@PathVariable Long id, String title, String contents, HttpSession session) {
+
+        // 로그인 했는지 확인
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            return "/users/loginForm";
+        }
+
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
         Question question = questionRepository.findById(id).get();
+
+        // 로그인한 유저가, 글쓴 유저와 일치하는지 확인
+        if (!question.isSameWriter(loginUser)) {
+            return "/users/loginForm";
+        }
+
         question.update(title, contents);
         questionRepository.save(question);
         return String.format("redirect:/questions/%d", id);
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Long id, HttpSession session) {
+
+        // 로그인 했는지 확인
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            return "/users/loginForm";
+        }
+
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
+        Question question = questionRepository.findById(id).get();
+
+        // 로그인한 유저가, 글쓴 유저와 일치하는지 확인
+        System.out.println(!question.isSameWriter(loginUser));
+        if (!question.isSameWriter(loginUser)) {
+            return "/users/loginForm";
+        }
+
         questionRepository.deleteById(id);
         return "redirect:/";
     }

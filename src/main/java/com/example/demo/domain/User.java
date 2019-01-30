@@ -56,6 +56,21 @@ public class User {
         this.userEmail = userEmail;
     }
 
+    public boolean matchPassword(String newPassword) {
+        if (newPassword == null) {
+            return false;
+        }
+        return newPassword.equals(userPassword);
+    }
+
+    public boolean matchId(Long newId) {
+        if (newId == null) {
+            return false;
+        }
+
+        return newId.equals(id);
+    }
+
     @Override
     public String toString() {
         return "{" + " userId='" + getUserId() + "'" + ", userPassword='" + getUserPassword() + "'" + ", userName='"

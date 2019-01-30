@@ -853,3 +853,101 @@
     }
 ```
 
+
+
+
+
+### 4-4 중복 제거, clean code, 쿼리 보기 설정
+
+
+
+### 메모
+
+#### 중복코드 제거
+
+```java 
+package com.example.demo.web;
+
+import javax.servlet.http.HttpSession;
+
+import com.example.demo.domain.User;
+
+public class HttpSessionUtils {
+
+    //USER_SESSION_KEY 라는 공통적으로 사용하는 변하지않는 변수를 지정한다.
+    public static final String USER_SESSION_KEY = "sessionedUser";
+
+    //로그인 여부를 확인하는 메소드
+    public static boolean isLoginUser(HttpSession session) {
+        //세션정보를 받아와서 세션 정보가 없으면 false, 있으면 true를 반환한다.
+        Object sessionedUser = session.getAttribute(USER_SESSION_KEY);
+
+        if (sessionedUser == null) {
+            return false;
+        }
+        return true;
+    }
+
+    //세션으로부터, 로그인한 사용자의 정보를 가져온다.
+    //로그인 세션이 확인 되면 세션에 해당하는 유저정보를 리턴한다.
+    public static User getUserFromSession(HttpSession session) {
+        if (!isLoginUser(session)) {
+            return null;
+        }
+        return (User) session.getAttribute(USER_SESSION_KEY);
+    }
+
+}
+```
+
+```java 
+//getPassword 혹은 getId를 통해서 객체에 저장된 값을 불러내지 말고,
+//객체를 최대한 활용해서, 객체내에서 확인할 수 있는 것은 확인해서 리턴값으로 확인하도록 하자.
+
+public boolean matchPassword(String newPassword) {
+        if (newPassword == null) {
+            return false;
+        }
+        return newPassword.equals(userPassword);
+    }
+
+ public boolean matchId(Long newId) {
+        if (newId == null) {
+            return false;
+        }
+
+        return newId.equals(id);
+    }
+```
+
+```java 
+@GetMapping("/{id}/form")
+    public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+        //로그인 유저 세션 확인
+        if (HttpSessionUtils.isLoginUser(session)) {
+            return "redirect:/users/loginForm";
+        }
+        
+        //로그인 유저에 대해서 id 값이 일치하는지 확인
+        User sessionedUser = HttpSessionUtils.getUserFromSession(session);
+        if (!sessionedUser.matchId(id)) {
+            throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
+        }
+
+        // userRepository 상에서 id 값에 해당하는 유저를 user로 넘긴다.
+        model.addAttribute("user", userRepository.findById(sessionedUser.getId()).get());
+        return "/user/updateForm";
+    }
+```
+
+```java 
+//쿼리 콘솔창에 보이도록 설정
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+```
+
+
+
+ 
+
+### 

@@ -50,14 +50,14 @@ public class UserController {
 
         // 2. 입력받은 userPassword가 저장되어있는 password와 같아야 한다.
         // 아닐 시 loginForm으로 리다이렉팅한다.
-        if (!userPassword.equals(user.getUserPassword())) {
+        if (!user.matchPassword(userPassword)) {
             System.out.println("Login Failed!");
             return "redirect:/users/loginForm";
         }
 
         // 3.세션을 등록한다
         System.out.println("Login Success!");
-        session.setAttribute("sessionedUser", user);
+        session.setAttribute(HttpSessionUtils.USER_SESSION_KEY, user);
 
         return "redirect:/";
     }
@@ -88,12 +88,11 @@ public class UserController {
 
     @GetMapping("/{id}/form")
     public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
-        Object tempUser = session.getAttribute("sessionedUser");
-        if (tempUser == null) {
+        if (HttpSessionUtils.isLoginUser(session)) {
             return "redirect:/users/loginForm";
         }
-        User sessionedUser = (User) tempUser;
-        if (!id.equals(sessionedUser.getId())) {
+        User sessionedUser = HttpSessionUtils.getUserFromSession(session);
+        if (!sessionedUser.matchId(id)) {
             throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
         }
 
@@ -105,13 +104,12 @@ public class UserController {
     @PutMapping("/{id}")
     public String update(@PathVariable Long id, User updatedUser, HttpSession session) {
 
-        Object tempUser = session.getAttribute("sessionedUser");
-        if (tempUser == null) {
+        if (HttpSessionUtils.isLoginUser(session)) {
             return "redirect:/users/loginForm";
         }
-        User sessionedUser = (User)tempUser;
-        if (!id.equals(sessionedUser.getId())){
-            throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.")
+        User sessionedUser = HttpSessionUtils.getUserFromSession(session);
+        if (!sessionedUser.matchId(id)) {
+            throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
         }
 
         // 수정할 사용자의 id 값과 수정할 newUser User객체를 받는다.

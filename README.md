@@ -1009,7 +1009,8 @@ public class QuestionController {
 > - 5-1. 회원과 질문 간의 관계 매핑 및 리팩토링
 > - 5-2. 질문 상세보기 기능 구현
 > - 5-3. 질문 수정 기능 구현
-> - 5-4. 답변 추가 및 답변 목록 기능 구현
+> - 5-4. 수정 삭제에 대한 보안 처리및 LocalDateTIme 설정
+> - 5-5. 답변 추가 및 답변 목록 기능 구현
 > - 5-5. 원격 서버에 소스 코드 배포
 
 ### 
@@ -1096,6 +1097,40 @@ public class Question {
 
 
 ### 5-3. 질문 수정 기능 구현
+
+### 메모
+
+```java 
+// updateForm에 질문 객체를 전달한다.
+    @GetMapping("/{id}/form")
+    public String updateForm(@PathVariable Long id, Model model) {
+        model.addAttribute("question", questionRepository.findById(id).get());
+        return "/qna/updateForm";
+    }
+
+    // form으로 부터 전달받은 값을 통해서, 디비 값을 update 한다.
+    @PutMapping("/{id}")
+    public String update(@PathVariable Long id, String title, String contents) {
+        Question question = questionRepository.findById(id).get();
+        question.update(title, contents);
+        questionRepository.save(question);
+        return String.format("redirect:/questions/%d", id);
+    }
+	//삭제!
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable Long id) {
+        questionRepository.deleteById(id);
+        return "redirect:/";
+    }
+```
+
+
+
+
+
+### 5-4. 수정 삭제에 대한 보안 처리및 LocalDateTIme 설정
+
+
 
 ### 메모
 

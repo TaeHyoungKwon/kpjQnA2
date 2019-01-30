@@ -18,9 +18,9 @@ public class Question {
     @GeneratedValue
     private Long id;
 
-    //유저 한명에 대해서 질문은 여러개 있기 때문에 writer에 대한 질문:유저 ManyToOne관계를 해주고,
+    // 유저 한명에 대해서 질문은 여러개 있기 때문에 writer에 대한 질문:유저 ManyToOne관계를 해주고,
     @ManyToOne
-    //외래키 이름을 아래와 같이 지정해 줄 수 있다.
+    // 외래키 이름을 아래와 같이 지정해 줄 수 있다.
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
     private User writer;
     private String title;
@@ -48,5 +48,10 @@ public class Question {
             return "";
         }
         return createDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+    }
+
+    public void update(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
     }
 }

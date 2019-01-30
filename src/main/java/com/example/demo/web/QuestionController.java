@@ -63,66 +63,66 @@ public class QuestionController {
         return "/qna/show";
     }
 
-    // updateForm에 질문 객체를 전달한다.
     @GetMapping("/{id}/form")
     public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
-        // 로그인 했는지 확인
+        // try catch를 통해서 아래 hasPermission을 이용해서 다시 리팩토링 한다.
+        // hasPermission이 true이면 정상 작동하고, hasPermission에서 throw가 발생하면, catch로 넘어간다.
+        try {
+            Question question = questionRepository.findById(id).get();
+            hasPermission(session, question);
+            model.addAttribute("question", question);
+            return "/qna/updateForm";
+        } catch (IllegalStateException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "/user/login";
+        }
+    }
+
+    // 기존에 로그인여부와, 본인이 쓴글에 대한 확인 부분을 하나의 메소드로 합친다.
+    // 모두 통과 시 true를 반환하고, 그렇지 않을 시에는 throw를 던진다.
+    private boolean hasPermission(HttpSession session, Question question) {
         if (!HttpSessionUtils.isLoginUser(session)) {
-            return "/users/loginForm";
+            throw new IllegalStateException("로그인이 필요합니다!");
         }
 
         User loginUser = HttpSessionUtils.getUserFromSession(session);
-        Question question = questionRepository.findById(id).get();
-
-        // 로그인한 유저가, 글쓴 유저와 일치하는지 확인
         if (!question.isSameWriter(loginUser)) {
-            return "/users/loginForm";
+            throw new IllegalStateException("자신이 쓴 글만 수정, 삭제 가능합니다.");
         }
-        model.addAttribute("question", question);
-        return "/qna/updateForm";
+        return true;
     }
 
     // form으로 부터 전달받은 값을 통해서, 디비 값을 update 한다.
     @PutMapping("/{id}")
-    public String update(@PathVariable Long id, String title, String contents, HttpSession session) {
+    public String update(@PathVariable Long id, String title, String contents, Model model, HttpSession session) {
 
-        // 로그인 했는지 확인
-        if (!HttpSessionUtils.isLoginUser(session)) {
-            return "/users/loginForm";
+        try {
+            Question question = questionRepository.findById(id).get();
+            hasPermission(session, question);
+            question.update(title, contents);
+            questionRepository.save(question);
+            return String.format("redirect:/questions/%d", id);
+        } catch (IllegalStateException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "/user/login";
         }
 
-        User loginUser = HttpSessionUtils.getUserFromSession(session);
-        Question question = questionRepository.findById(id).get();
-
-        // 로그인한 유저가, 글쓴 유저와 일치하는지 확인
-        if (!question.isSameWriter(loginUser)) {
-            return "/users/loginForm";
-        }
-
-        question.update(title, contents);
-        questionRepository.save(question);
-        return String.format("redirect:/questions/%d", id);
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id, HttpSession session) {
+    public String delete(@PathVariable Long id, Model model, HttpSession session) {
 
-        // 로그인 했는지 확인
-        if (!HttpSessionUtils.isLoginUser(session)) {
-            return "/users/loginForm";
+        // try catch를 통해서 아래 hasPermission을 이용해서 다시 리팩토링 한다.
+        // hasPermission이 true이면 정상 작동하고, hasPermission에서 throw가 발생하면, catch로 넘어간다.
+        try {
+            Question question = questionRepository.findById(id).get();
+            hasPermission(session, question);
+            questionRepository.deleteById(id);
+            return "redirect:/";
+        } catch (IllegalStateException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "/user/login";
         }
-
-        User loginUser = HttpSessionUtils.getUserFromSession(session);
-        Question question = questionRepository.findById(id).get();
-
-        // 로그인한 유저가, 글쓴 유저와 일치하는지 확인
-        System.out.println(!question.isSameWriter(loginUser));
-        if (!question.isSameWriter(loginUser)) {
-            return "/users/loginForm";
-        }
-
-        questionRepository.deleteById(id);
-        return "redirect:/";
     }
 
 }

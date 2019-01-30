@@ -1079,3 +1079,27 @@ public class Question {
 
 
 
+### 5-2. 질문 상세보기 기능 구현
+
+### 메모
+
+```java 
+@GetMapping("/{id}")
+    public String show(@PathVariable Long id, Model model) {
+        model.addAttribute("question", questionRepository.findById(id).get());
+        return "/qna/show";
+    }
+```
+
+
+
+
+
+### 5-3. 질문 수정 기능 구현
+
+### 메모
+
+```java 
+
+```
+

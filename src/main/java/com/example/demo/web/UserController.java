@@ -57,14 +57,14 @@ public class UserController {
 
         // 3.세션을 등록한다
         System.out.println("Login Success!");
-        session.setAttribute("user", user);
+        session.setAttribute("sessionedUser", user);
 
         return "redirect:/";
     }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.removeAttribute("user");
+        session.removeAttribute("sessionedUser");
         return "redirect:/";
     }
 
@@ -87,20 +87,37 @@ public class UserController {
     }
 
     @GetMapping("/{id}/form")
-    public String updateForm(@PathVariable Long id, Model model) {
+    public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+        Object tempUser = session.getAttribute("sessionedUser");
+        if (tempUser == null) {
+            return "redirect:/users/loginForm";
+        }
+        User sessionedUser = (User) tempUser;
+        if (!id.equals(sessionedUser.getId())) {
+            throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
+        }
 
         // userRepository 상에서 id 값에 해당하는 유저를 user로 넘긴다.
-        model.addAttribute("user", userRepository.findById(id).get());
+        model.addAttribute("user", userRepository.findById(sessionedUser.getId()).get());
         return "/user/updateForm";
     }
 
     @PutMapping("/{id}")
-    public String update(@PathVariable Long id, User newUser) {
+    public String update(@PathVariable Long id, User updatedUser, HttpSession session) {
+
+        Object tempUser = session.getAttribute("sessionedUser");
+        if (tempUser == null) {
+            return "redirect:/users/loginForm";
+        }
+        User sessionedUser = (User)tempUser;
+        if (!id.equals(sessionedUser.getId())){
+            throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.")
+        }
 
         // 수정할 사용자의 id 값과 수정할 newUser User객체를 받는다.
         User user = userRepository.findById(id).get();
         // newUser 객체는 update를 통해서 새롭게 set 된다.
-        user.update(newUser);
+        user.update(updatedUser);
         // 바뀐 객체를 저장한다. -> 수정 완료
         userRepository.save(user);
         return "redirect:/users";

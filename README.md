@@ -239,16 +239,16 @@
 >
 > * 넘어가는 매개변수가 너무 길다.
 >
->   ```java 
->   @Controller
->   public class UserController {
->       @PostMapping("/create")
->       public String create(String userId, String userPassword, String userName, String userEmail) {
->           System.out.println("userId: " + userId);
->           return "index";
->       }
->   }
->   ```
+> ```java 
+> @Controller
+> public class UserController {
+>    @PostMapping("/create")
+>    public String create(String userId, String userPassword, String userName, String userEmail) {
+>        System.out.println("userId: " + userId);
+>        return "index";
+>    }
+> }
+> ```
 >
 >   * 각각을 일일이 넘기지 말고, 객체로 넘기면 코드를 깔끔하게 유지할 수 있다.
 >
@@ -256,84 +256,85 @@
 >
 >   * get,set method를 만들어주고, toString도 만들어 준다. - 자동생성하자
 >
->     ```java 
->     package com.example.demo.web;
->     
->     /**
+>  ```java 
+>  package com.example.demo.web;
+>  
+>  /**
 >      * User
->      */
->     public class User {
->     
->         private String userId;
->         private String userPassword;
->         private String userName;
->         private String userEmail;
->     
->         public String getUserId() {
->             return this.userId;
->         }
->     
->         public void setUserId(String userId) {
->             this.userId = userId;
->         }
->     
->         public String getUserPassword() {
->             return this.userPassword;
->         }
->     
->         public void setUserPassword(String userPassword) {
->             this.userPassword = userPassword;
->         }
->     
->         public String getUserName() {
->             return this.userName;
->         }
->     
->         public void setUserName(String userName) {
->             this.userName = userName;
->         }
->     
->         public String getUserEmail() {
->             return this.userEmail;
->         }
->     
->         public void setUserEmail(String userEmail) {
->             this.userEmail = userEmail;
->         }
->     
->         @Override
->         public String toString() {
->             return "{" + " userId='" + getUserId() + "'" + ", userPassword='" + getUserPassword() + "'" + ", userName='"
+>   */
+>  public class User {
+>  
+>      private String userId;
+>      private String userPassword;
+>      private String userName;
+>      private String userEmail;
+>  
+>      public String getUserId() {
+>          return this.userId;
+>      }
+>  
+>      public void setUserId(String userId) {
+>          this.userId = userId;
+>      }
+>  
+>      public String getUserPassword() {
+>          return this.userPassword;
+>      }
+>  
+>      public void setUserPassword(String userPassword) {
+>          this.userPassword = userPassword;
+>      }
+>  
+>      public String getUserName() {
+>          return this.userName;
+>      }
+>  
+>      public void setUserName(String userName) {
+>          this.userName = userName;
+>      }
+>  
+>      public String getUserEmail() {
+>          return this.userEmail;
+>      }
+>  
+>      public void setUserEmail(String userEmail) {
+>          this.userEmail = userEmail;
+>      }
+>  
+>      @Override
+>      public String toString() {
+>          return "{" + " userId='" + getUserId() + "'" + ", userPassword='" + getUserPassword() + "'" + ", userName='"
 >                     + getUserName() + "'" + ", userEmail='" + getUserEmail() + "'" + "}";
->         }
->     
->     }
->     ```
+>      }
+>  
+>  }
+>  ```
 >
->     
+>  
 >
->     기존 UserController.java는 아래와 같이 깔끔하게 코드를 줄일 수 있다.
+>  기존 UserController.java는 아래와 같이 깔끔하게 코드를 줄일 수 있다.
 >
->     ```java 
->     //이렇게 깔끔해진다..
->     
->     @Controller
->     public class UserController {
->         @PostMapping("/create")
->         public String create(User user) {
->             System.out.println("user: " + user);
->             return "index";
->         }
->     }
->     ```
+>  ```java 
+>  //이렇게 깔끔해진다..
+>  
+>  @Controller
+>  public class UserController {
+>      @PostMapping("/create")
+>      public String create(User user) {
+>          System.out.println("user: " + user);
+>          return "index";
+>      }
+>  }
+>  ```
 >
->     ```java 
->     user: { userId='kwon5604', userPassword='fv3528no!', userName='sdafasdf', userEmail='kwon5604@naver.com'}
->     ```
+>  ```java 
+>  user: { userId='kwon5604', userPassword='fv3528no!', userName='sdafasdf', userEmail='kwon5604@naver.com'}
+>  ```
 >
 >     * 더하여서, toString()의 영향으로 위와 같이 깔끔하게 저장하고 있는 유저정보에 대해서 출력까지 해준다.
 >
->     
+>  
+>
 
 
 
@@ -820,4 +821,35 @@
 
 
 ### 
+
+### 4-3 자기 자신에 한해 개인정보 수정
+
+
+
+### 메모
+
+```java 
+@GetMapping("/{id}/form")
+    public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+        
+        //이 부분부터 코드가 추가되었다.
+        //세션으로 부터 sessionedUser에 해당하는 session 값을 받는다.
+        Object tempUser = session.getAttribute("sessionedUser");
+        
+        //이때 해당 세션 값이 null이면, loginForm으로 리다이렉팅 하고,
+        if (tempUser == null) {
+            return "redirect:/users/loginForm";
+        }
+        
+        //null이 아닐 시에는, 자신의 정보만 수정할 수 있도록 예외처리를 해준다.
+        User sessionedUser = (User) tempUser;
+        if (!id.equals(sessionedUser.getId())) {
+            throw new IllegalStateException("자신의 정보만 수정할 수 있습니다.");
+        }
+
+        // userRepository 상에서 id 값에 해당하는 유저를 user로 넘긴다.
+        model.addAttribute("user", userRepository.findById(sessionedUser.getId()).get());
+        return "/user/updateForm";
+    }
+```
 

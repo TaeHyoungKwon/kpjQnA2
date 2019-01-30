@@ -14,11 +14,15 @@ public class User {
     @GeneratedValue
     private Long id; // @Id로 primary key 지정, @GeneratedValue == Auto Increment
 
-    @Column(nullable = false) // null 관리
+    @Column(nullable = false, length = 20, unique = true) // null 관리
     private String userId;
     private String userPassword;
     private String userName;
     private String userEmail;
+
+    public Long getId() {
+        return this.id;
+    }
 
     public String getUserId() {
         return this.userId;

@@ -1145,3 +1145,59 @@ public class Question {
     }
 ```
 
+
+
+
+
+### 5-5 답변추가 및 답변 목록 기능 구현
+
+
+
+### 메모
+
+```java 
+@PostMapping("")
+    public String create(@PathVariable Long questionId, String contents, HttpSession session) {
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            return "/users/loginForm";
+        }
+        //로그인 유저 객체
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
+        //인자로 받은 questionId 값에 해당하는 질문
+        Question question = questionRepository.findById(questionId).get();
+        //로그인 유저와, 질문, form으로 부터 받은 값을 넘겨서 Answer 객체를 생성한다.
+        Answer answer = new Answer(loginUser, contents, question);
+
+        //Answer DB에 저장한다.
+        answerRepository.save(answer);
+
+        return String.format("redirect:/questions/%d", questionId);
+```
+
+```java 
+//Question.java
+...
+//oneToMany로 answer들을 받아서 리스트 형태로 가진다.    
+@OneToMany(mappedBy = "question")
+    @OrderBy("id ASC")
+    private List<Answer> answers;
+
+...
+```
+
+```java 
+
+...
+//답글은 사용자에 대해서도 ManyToOne, 질문에 대해서도 ManyToOne의 관계를 가지기 떄문에
+    //아래와 같이 모두 외래키 설정 해주어야 한다.
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_writer"))
+    private User writer;
+
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_to_question"))
+    private Question question;
+
+...
+```
+

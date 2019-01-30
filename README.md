@@ -996,4 +996,86 @@ public class QuestionController {
 
 
 
+
+
+## 반복주기 5 학습 목표
+
+> - 객체 간의 관계 설정(@OㄷneToMany, @ManyToMany)
+
+
+
+## 강의 순서
+
+> - 5-1. 회원과 질문 간의 관계 매핑 및 리팩토링
+> - 5-2. 질문 상세보기 기능 구현
+> - 5-3. 질문 수정 기능 구현
+> - 5-4. 답변 추가 및 답변 목록 기능 구현
+> - 5-5. 원격 서버에 소스 코드 배포
+
 ### 
+
+### 5-1. 회원과 질문 간의 관계 매핑 및 리팩토링
+
+### 메모
+
+
+
+#### create 컬럼 추가하기
+
+```java 
+package com.example.demo.domain;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.ForeignKey;
+
+//Question 모델 생성
+@Entity
+public class Question {
+
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    //유저 한명에 대해서 질문은 여러개 있기 때문에 writer에 대한 질문:유저 ManyToOne관계를 해주고,
+    @ManyToOne
+    //외래키 이름을 아래와 같이 지정해 줄 수 있다.
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
+    private User writer;
+    private String title;
+    private String contents;
+
+    // 질문 생성시간를 위한 컬럼 추가
+    private LocalDateTime createDate;
+
+    public Question() {
+
+    }
+
+    public Question(User writer, String title, String contents) {
+        this.writer = writer;
+        this.title = title;
+        this.contents = contents;
+        // 생성시간을 현재시간으로 초기화
+        this.createDate = LocalDateTime.now();
+    }
+
+    // 생성된 시간에 대한 formatted get 메소드 작성
+    // template 에서 {{ formattedCreateDate }} 로 사용 가능 하다
+    public String getFormattedCreateDate() {
+        if (createDate == null) {
+            return "";
+        }
+        return createDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
+    }
+}
+```
+
+
+

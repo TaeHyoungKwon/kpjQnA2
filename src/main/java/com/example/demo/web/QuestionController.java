@@ -45,7 +45,7 @@ public class QuestionController {
         // 세션으로 부터 유저를 불러온다.
         User sessionUser = HttpSessionUtils.getUserFromSession(session);
         // form으로 부터 받은 정보와 로그인 된 세션정보를 인자로 넘겨주어서, Question 객체를 생성한다.
-        Question newQuestion = new Question(sessionUser.getUserId(), title, contents);
+        Question newQuestion = new Question(sessionUser, title, contents);
         // 생성한 Question 객체를 DB에 save 한다.
         questionRepository.save(newQuestion);
 

@@ -1011,7 +1011,8 @@ public class QuestionController {
 > - 5-3. 질문 수정 기능 구현
 > - 5-4. 수정 삭제에 대한 보안 처리및 LocalDateTIme 설정
 > - 5-5. 답변 추가 및 답변 목록 기능 구현
-> - 5-5. 원격 서버에 소스 코드 배포
+> - 5-6. haspermission과 Result 를 이용한 Exception 처리 및 리팩토링
+> - 5-7. 원격 서버에 소스 코드 배포
 
 ### 
 
@@ -1199,5 +1200,119 @@ public class Question {
     private Question question;
 
 ...
+```
+
+
+
+
+
+### 5-6 haspermission과 Result 를 이용한 Exception 처리 및 리팩토링
+
+### 메모
+
+이 강좌에서는 예외처리하는 방법을 아래와 같이 두가지로 사용하였다.
+
+두가지 모두 깔끔하게 잘 처리한 것 같다. 코드를 보고 익힐 필요가 있을 것 같다.
+
+```java 
+
+@GetMapping("/{id}/form")
+    public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+        // try catch를 통해서 아래 hasPermission을 이용해서 다시 리팩토링 한다.
+        // hasPermission이 true이면 정상 작동하고, hasPermission에서 throw가 발생하면, catch로 넘어간다.
+        try {
+            Question question = questionRepository.findById(id).get();
+            hasPermission(session, question);
+            model.addAttribute("question", question);
+            return "/qna/updateForm";
+        } catch (IllegalStateException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "/user/login";
+        }
+    }
+
+    // 기존에 로그인여부와, 본인이 쓴글에 대한 확인 부분을 하나의 메소드로 합친다.
+    // 모두 통과 시 true를 반환하고, 그렇지 않을 시에는 throw를 던진다.
+    private boolean hasPermission(HttpSession session, Question question) {
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            throw new IllegalStateException("로그인이 필요합니다!");
+        }
+
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
+        if (!question.isSameWriter(loginUser)) {
+            throw new IllegalStateException("자신이 쓴 글만 수정, 삭제 가능합니다.");
+        }
+        return true;
+    }
+```
+
+
+
+```java 
+@GetMapping("/{id}/form")
+    public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+        Question question = questionRepository.findById(id).get();
+        
+        //valid check를 한다.
+        //로그인 체크를 위해 session 객체를, 자신이 쓴 글인지를 확인하기 위해서 question 객체를 넘긴다.
+        Result result = valid(session, question);
+
+        //result의 결과가 유효하지 않다면,
+        //error 메세지를 loginpage로 보낸다.
+        if (!result.isValid()) {
+            model.addAttribute("errorMessage", result.getErrorMessage());
+            return "/user/login";
+        }
+        //result의 결과가 유효하다면,
+        //정상적으로 동작시킨다.
+        model.addAttribute("question", question);
+        return "/qna/updateForm";
+    }
+
+    private Result valid(HttpSession session, Question question) {
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            return Result.fail("로그인이 필요합니다.");
+        }
+
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
+        if (!question.isSameWriter(loginUser)) {
+            return Result.fail("자신이 쓴 글만 수정, 삭제 가능합니다.");
+        }
+        return Result.ok();
+    }
+```
+
+```java 
+//Result.java
+package com.example.demo.domain;
+
+public class Result {
+
+    private boolean valid;
+    private String errorMessage;
+
+    private Result(boolean valid, String errorMessage) {
+        this.valid = valid;
+        this.errorMessage = errorMessage;
+    }
+
+    public boolean isValid() {
+        return valid;
+
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+
+    }
+
+    public static Result ok() {
+        return new Result(true, null);
+    }
+
+    public static Result fail(String errorMessage) {
+        return new Result(false, errorMessage);
+    }
+}
 ```
 

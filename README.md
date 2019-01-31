@@ -1316,3 +1316,105 @@ public class Result {
 }
 ```
 
+
+
+
+
+## 반복주기 6 학습 목표
+
+> - JSON API 및 AJAX를 활용해 답변 추가 / 삭제 구현
+
+
+
+## 강의 순서
+
+> - 6-1. AJAX를 활용해 답변 추가 기능 구현
+> - 6-2. AJAX를 활용해 답변 삭제 기능 구현
+> - 6-3. 질문 목록에 답변 수 보여주기 기능 추가
+> - 6-4. 중복 제거 및 리팩토링
+> - 6-5. JSON API 추가 및 테스트
+> - 6-6. 쉘 스크립트를 활용해 배포 자동화
+
+
+
+### 6-1. Ajax를 활용해 답변 추가 기능 구현
+
+###  메모
+
+```java 
+//scripts.js
+
+//class 명이 answer-write인 것의 input type이 submit이 클릭되었을 때, addAnswer함수를 실행한다.
+$(".answer-write input[type=submit]").click(addAnswer);
+
+function addAnswer(e) {
+  e.preventDefault();
+  console.log("click me");
+
+  //addAnser함수는 form에서 전달된 값을 serialize()하여서,
+  //key,value형태로 내보난다. -> 여기선 ex) contents=abcde
+  var queryString = $(".answer-write").serialize();
+  console.log("query:" + queryString);
+
+  //class 명이 answer-write인 태그의 action부분을 가져온다.
+  var url = $(".answer-write").attr("action");
+  console.log(url);
+
+  //위에서 저장한 url에 대해서, ajax 콜을 한다.
+  //위의 url을 post 형식으로 data를 body에 실어서 요청했을 때, 응답 값을 json으로 받는다.
+  $.ajax({
+    type: "post",
+    url: url,
+    data: queryString,
+    dataType: "json",
+    error: onError,
+    success: onSuccess,
+  });
+
+  function onError() {}
+  function onSuccess(data, status) {
+    console.log(data);
+  }
+}
+```
+
+
+
+```java
+
+//ApiAnswerController.java
+
+//기존의 파일명을 접두어로Api를 붙인 형태로 바꾼다.
+//Json 응답을 하기 때문에 Controller를 RestController로 바꿔준다.
+@RestController
+@RequestMapping("/api/questions/{questionId}/answers")
+public class ApiAnswerController {
+
+    @Autowired
+    private AnswerRepository answerRepository;
+
+    @Autowired
+    private QuestionRepository questionRepository;
+
+    //메소드의 반환형이 Answer 객체이다.
+    @PostMapping("")
+    public Answer create(@PathVariable Long questionId, String contents, HttpSession session) {
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            return null;
+        }
+        // 로그인 유저 객체
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
+        // 인자로 받은 questionId 값에 해당하는 질문
+        Question question = questionRepository.findById(questionId).get();
+        // 로그인 유저와, 질문, form으로 부터 받은 값을 넘겨서 Answer 객체를 생성한다.
+        Answer answer = new Answer(loginUser, contents, question);
+
+        //저장하는 answer 객체를 리턴한다.
+        //이때 클라이언트로 가는 json 응답은 Answer 객체에서 getter 메소드가 구현되어있거나,
+        //따로 지정해준것에 한해서, 응답이 보내진다.
+        return answerRepository.save(answer);
+    }
+```
+
+
+

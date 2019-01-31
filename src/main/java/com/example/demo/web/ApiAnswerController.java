@@ -11,13 +11,16 @@ import com.example.demo.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Controller
-@RequestMapping("/questions/{questionId}/answers")
-public class AnswerController {
+//기존의 파일명을 접두어로Api를 붙인 형태로 바꾼다.
+//Json 응답을 하기 때문에 Controller를 RestController로 바꿔준다.
+@RestController
+@RequestMapping("/api/questions/{questionId}/answers")
+public class ApiAnswerController {
 
     @Autowired
     private AnswerRepository answerRepository;
@@ -25,10 +28,11 @@ public class AnswerController {
     @Autowired
     private QuestionRepository questionRepository;
 
+    // 메소드의 반환형이 Answer 객체이다.
     @PostMapping("")
-    public String create(@PathVariable Long questionId, String contents, HttpSession session) {
+    public Answer create(@PathVariable Long questionId, String contents, HttpSession session) {
         if (!HttpSessionUtils.isLoginUser(session)) {
-            return "/users/loginForm";
+            return null;
         }
         // 로그인 유저 객체
         User loginUser = HttpSessionUtils.getUserFromSession(session);
@@ -37,10 +41,10 @@ public class AnswerController {
         // 로그인 유저와, 질문, form으로 부터 받은 값을 넘겨서 Answer 객체를 생성한다.
         Answer answer = new Answer(loginUser, contents, question);
 
-        // Answer DB에 저장한다.
-        answerRepository.save(answer);
-
-        return String.format("redirect:/questions/%d", questionId);
+        // 저장하는 answer 객체를 리턴한다.
+        // 이때 클라이언트로 가는 json 응답은 Answer 객체에서 getter 메소드가 구현되어있거나,
+        // 따로 지정해준것에 한해서, 응답이 보내진다.
+        return answerRepository.save(answer);
     }
 
 }

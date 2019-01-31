@@ -35,7 +35,7 @@ function addAnswer(e) {
       data.writer.userId,
       data.formattedCreateDate,
       data.contents,
-      data.id,
+      data.question.id,
       data.id
     );
 
@@ -44,12 +44,42 @@ function addAnswer(e) {
     //textarea는 공백으로 해준다.
     $(".answer-write textarea").val("");
   }
-  // $(".link-delete-article").click(deleteAnswer);
+}
 
-  // function deleteAnswer() {
-  //   e.preventDefault();
-  //   var url = $(this).attr("href")
-  // }
+//a 태그의 link-delete-article 클래스를 클릭했을 때,
+//deleteAnswer 함수를 실행한다.
+$("a.link-delete-article").click(deleteAnswer);
+
+function deleteAnswer(e) {
+  e.preventDefault();
+  //$(this)를 따로 빼놓는다.
+  var deleteBtn = $(this);
+
+  //해당 버튼의 url을 변수로 저장한다.
+  var url = $(this).attr("href");
+
+  //ajax 요청을 보낸다.
+  //typedms delete로 위에서 저장한 url로 보낸다.
+  //해당 url을 호출하면서, ApiAnswerController.java의 코드를 통해 디비에서는 삭제된다.
+  $.ajax({
+    type: "delete",
+    url: url,
+    dataType: "json",
+    error: function(xhr, status) {
+      console.log("error");
+    },
+    //성공 했을 시,
+    success: function(data, status) {
+      //값이 유효하다면,
+      if (data.valid) {
+        //위 버튼에서 가장 가까운 article을 찾아서, 삭제한다.
+        deleteBtn.closest("article").remove();
+      } else {
+        //유효하지 않다면, 에러 메세지를 보낸다.
+        alert(data.errorMessage);
+      }
+    },
+  });
 }
 
 String.prototype.format = function() {

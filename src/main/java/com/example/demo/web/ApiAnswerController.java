@@ -6,12 +6,14 @@ import com.example.demo.domain.Answer;
 import com.example.demo.domain.AnswerRepository;
 import com.example.demo.domain.Question;
 import com.example.demo.domain.QuestionRepository;
+import com.example.demo.domain.Result;
 import com.example.demo.domain.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,4 +49,22 @@ public class ApiAnswerController {
         return answerRepository.save(answer);
     }
 
+    @DeleteMapping("/{id}")
+    public Result delete(@PathVariable Long questionId, @PathVariable Long id, HttpSession session) {
+        System.out.println("KwontaeHyoung!");
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            return Result.fail("로그인해야합니다.");
+        }
+
+        Answer answer = answerRepository.findById(id).get();
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
+
+        if (!answer.isSameWriter(loginUser)) {
+            return Result.fail("사용자 정보가 일치하지 않습니다.");
+        }
+
+        answerRepository.deleteById(id);
+        return Result.ok();
+
+    }
 }

@@ -97,4 +97,8 @@ public class Answer {
         return this.createDate;
     }
 
+    public boolean isSameWriter(User loginUser) {
+        return this.writer.equals(loginUser);
+    }
+
 }

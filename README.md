@@ -1329,7 +1329,8 @@ public class Result {
 ## 강의 순서
 
 > - 6-1. AJAX를 활용해 답변 추가 기능 구현
-> - 6-2. AJAX를 활용해 답변 삭제 기능 구현
+> - 6-2. AJAX를 활용해 답변 추가 기능 구현 2
+> - 6-3. AJAX를 활용해 답변 삭제 기능 구현
 > - 6-3. 질문 목록에 답변 수 보여주기 기능 추가
 > - 6-4. 중복 제거 및 리팩토링
 > - 6-5. JSON API 추가 및 테스트
@@ -1420,7 +1421,7 @@ public class ApiAnswerController {
 
 
 
-### 6-2.
+### 6-2. AJAX를 활용해 답변 추가 기능 구현 2
 
 ### 메모
 
@@ -1449,3 +1450,84 @@ function onSuccess(data, status) {
 ```java 
 @JsonProperty를 통해서 JSON 객체로 응답보낼 것을 선택할 수 있다.
 ```
+
+
+
+
+
+### 6-3. AJAX를 활용해 답변 삭제 기능 구현
+
+### 메모
+
+```java 
+//ApiAnswerController.java
+
+//기존 방식대로, Delete 함수를 만든다.
+@DeleteMapping("/{id}")
+    public Result delete(@PathVariable Long questionId, @PathVariable Long id, HttpSession session) {
+        System.out.println("KwontaeHyoung!");
+        if (!HttpSessionUtils.isLoginUser(session)) {
+            return Result.fail("로그인해야합니다.");
+        }
+
+        Answer answer = answerRepository.findById(id).get();
+        User loginUser = HttpSessionUtils.getUserFromSession(session);
+
+        if (!answer.isSameWriter(loginUser)) {
+            return Result.fail("사용자 정보가 일치하지 않습니다.");
+        }
+
+        answerRepository.deleteById(id);
+        return Result.ok();
+
+    }
+```
+
+```java 
+//scripts.js
+
+//a 태그의 link-delete-article 클래스를 클릭했을 때,
+//deleteAnswer 함수를 실행한다.
+$("a.link-delete-article").click(deleteAnswer);
+
+function deleteAnswer(e) {
+  e.preventDefault();
+  //$(this)를 따로 빼놓는다.
+  var deleteBtn = $(this);
+
+  //해당 버튼의 url을 변수로 저장한다.
+  var url = $(this).attr("href");
+
+  //ajax 요청을 보낸다.
+  //typedms delete로 위에서 저장한 url로 보낸다.
+  //해당 url을 호출하면서, ApiAnswerController.java의 코드를 통해 디비에서는 삭제된다.
+  $.ajax({
+    type: "delete",
+    url: url,
+    dataType: "json",
+    error: function(xhr, status) {
+      console.log("error");
+    },
+    //성공 했을 시,
+    success: function(data, status) {
+      //값이 유효하다면,
+      if (data.valid) {
+        //위 버튼에서 가장 가까운 article을 찾아서, 삭제한다.
+        deleteBtn.closest("article").remove();
+      } else {
+        //유효하지 않다면, 에러 메세지를 보낸다.
+        alert(data.errorMessage);
+      }
+    },
+  });
+}
+```
+
+
+
+
+
+### 6-4. 질문 목록에 답변수 보여주기 기능
+
+
+

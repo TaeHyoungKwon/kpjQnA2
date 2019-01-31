@@ -43,6 +43,7 @@ public class ApiAnswerController {
         // 로그인 유저와, 질문, form으로 부터 받은 값을 넘겨서 Answer 객체를 생성한다.
         Answer answer = new Answer(loginUser, contents, question);
 
+        question.addAnswer();
         // 저장하는 answer 객체를 리턴한다.
         // 이때 클라이언트로 가는 json 응답은 Answer 객체에서 getter 메소드가 구현되어있거나,
         // 따로 지정해준것에 한해서, 응답이 보내진다.
@@ -64,6 +65,9 @@ public class ApiAnswerController {
         }
 
         answerRepository.deleteById(id);
+        Question question = questionRepository.findById(questionId).get();
+        question.minusAnswer();
+        questionRepository.save(question);
         return Result.ok();
 
     }

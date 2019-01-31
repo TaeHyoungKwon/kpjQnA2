@@ -41,6 +41,9 @@ public class Question {
     @JsonProperty
     private String contents;
 
+    @JsonProperty
+    private Integer countOfAnswer;
+
     // 질문 생성시간를 위한 컬럼 추가
     private LocalDateTime createDate;
 
@@ -101,6 +104,14 @@ public class Question {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    public void addAnswer() {
+        this.countOfAnswer += 1;
+    }
+
+    public void minusAnswer() {
+        this.countOfAnswer -= 1;
     }
 
 }

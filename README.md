@@ -1529,5 +1529,42 @@ function deleteAnswer(e) {
 
 ### 6-4. 질문 목록에 답변수 보여주기 기능
 
+```java 
+//Question.java
+@JsonProperty
+    private Integer countOfAnswer;
 
+...
+    
+public void addAnswer() {
+        this.countOfAnswer += 1;
+    }
+
+    public void minusAnswer() {
+        this.countOfAnswer -= 1;
+    }
+
+...
+```
+
+* question.java에 countOfAnswer 컬럼을 추가한다.
+* 게시글이 하나 추가될 때마다, 값을 하나씩 올리고,
+* 반대로 감소될때 마다 값을 하나씩 줄인다.
+
+
+
+```java 
+@DeleteMapping("/{id}")
+    public Result delete(@PathVariable Long questionId, @PathVariable Long id, HttpSession session) {
+       ....
+        answerRepository.deleteById(id);
+        //삭제 이후, 아래와 같이 감소연산 후, 다시 객체를 save 해준다.
+        Question question = questionRepository.findById(questionId).get();
+        question.minusAnswer();
+        questionRepository.save(question);
+        
+        return Result.ok();
+
+    }
+```
 

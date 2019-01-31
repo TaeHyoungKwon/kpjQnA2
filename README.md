@@ -1418,3 +1418,34 @@ public class ApiAnswerController {
 
 
 
+
+
+### 6-2.
+
+### 메모
+
+```java 
+function onSuccess(data, status) {
+    
+    //show.html 상에, 미리 만들어 놓은 answerTemplate을 불러온다.
+    var answerTemplate = $("#answerTemplate").html();
+
+    //불러온 answerTemplate에 format에 맞춰서, 순서대로을 넘긴다.
+    var template = answerTemplate.format(
+      data.writer.userId,
+      data.formattedCreateDate,
+      data.contents,
+      data.id,
+      data.id
+    );
+
+    //위에서 만든 template을 앞에다 붙인다.
+    $(".qna-comment-slipp-articles").prepend(template);
+    //textarea는 공백으로 해준다.
+    $(".answer-write textarea").val("");
+  }
+```
+
+```java 
+@JsonProperty를 통해서 JSON 객체로 응답보낼 것을 선택할 수 있다.
+```

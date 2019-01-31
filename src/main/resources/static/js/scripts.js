@@ -27,16 +27,34 @@ function addAnswer(e) {
 
   function onError() {}
   function onSuccess(data, status) {
-    console.log(data);
+    //show.html 상에, 미리 만들어 놓은 answerTemplate을 불러온다.
+    var answerTemplate = $("#answerTemplate").html();
+
+    //불러온 answerTemplate에 format에 맞춰서, 순서대로을 넘긴다.
+    var template = answerTemplate.format(
+      data.writer.userId,
+      data.formattedCreateDate,
+      data.contents,
+      data.id,
+      data.id
+    );
+
+    //위에서 만든 template을 앞에다 붙인다.
+    $(".qna-comment-slipp-articles").prepend(template);
+    //textarea는 공백으로 해준다.
+    $(".answer-write textarea").val("");
   }
+  // $(".link-delete-article").click(deleteAnswer);
+
+  // function deleteAnswer() {
+  //   e.preventDefault();
+  //   var url = $(this).attr("href")
+  // }
 }
 
-// String.prototype.format = function() {
-//   var args = arguments;
-//   return this.replace(/{(\d+)}/g, function(match, number) {
-//     return typeof args[number] != 'undefined'
-//         ? args[number]
-//         : match
-//         ;
-//   });
-// };
+String.prototype.format = function() {
+  var args = arguments;
+  return this.replace(/{(\d+)}/g, function(match, number) {
+    return typeof args[number] != "undefined" ? args[number] : match;
+  });
+};

@@ -12,24 +12,30 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 public class Answer {
 
     @Id
     @GeneratedValue
+    @JsonProperty
     private Long id;
 
     // 답글은 사용자에 대해서도 ManyToOne, 질문에 대해서도 ManyToOne의 관계를 가지기 떄문에
     // 아래와 같이 모두 외래키 설정 해주어야 한다.
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_writer"))
+    @JsonProperty
     private User writer;
 
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_to_question"))
+    @JsonProperty
     private Question question;
 
     @Lob
+    @JsonProperty
     private String contents;
 
     // 질문 생성시간를 위한 컬럼 추가

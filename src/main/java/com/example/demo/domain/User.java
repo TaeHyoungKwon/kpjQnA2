@@ -7,6 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * User
  */
@@ -14,12 +17,20 @@ import javax.persistence.Id;
 public class User {
     @Id
     @GeneratedValue
+    @JsonProperty
     private Long id; // @Id로 primary key 지정, @GeneratedValue == Auto Increment
 
     @Column(nullable = false, length = 20, unique = true) // null 관리
+    @JsonProperty
     private String userId;
+
+    @JsonIgnore
     private String userPassword;
+
+    @JsonProperty
     private String userName;
+
+    @JsonProperty
     private String userEmail;
 
     public Long getId() {

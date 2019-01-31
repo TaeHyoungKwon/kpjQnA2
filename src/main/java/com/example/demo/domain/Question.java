@@ -13,6 +13,9 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.ForeignKey;
 
 //Question 모델 생성
@@ -21,23 +24,28 @@ public class Question {
 
     @Id
     @GeneratedValue
+    @JsonProperty
     private Long id;
 
     // 유저 한명에 대해서 질문은 여러개 있기 때문에 writer에 대한 질문:유저 ManyToOne관계를 해주고,
     @ManyToOne
     // 외래키 이름을 아래와 같이 지정해 줄 수 있다.
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
+    @JsonProperty
     private User writer;
+
+    @JsonProperty
     private String title;
 
     @Lob
+    @JsonProperty
     private String contents;
 
     // 질문 생성시간를 위한 컬럼 추가
     private LocalDateTime createDate;
 
     @OneToMany(mappedBy = "question")
-    @OrderBy("id ASC")
+    @OrderBy("id DESC")
     private List<Answer> answers;
 
     public Question() {

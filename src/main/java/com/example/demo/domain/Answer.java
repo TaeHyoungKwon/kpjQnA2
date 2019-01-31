@@ -15,12 +15,7 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-public class Answer {
-
-    @Id
-    @GeneratedValue
-    @JsonProperty
-    private Long id;
+public class Answer extends AbstractEntity {
 
     // 답글은 사용자에 대해서도 ManyToOne, 질문에 대해서도 ManyToOne의 관계를 가지기 떄문에
     // 아래와 같이 모두 외래키 설정 해주어야 한다.
@@ -38,9 +33,6 @@ public class Answer {
     @JsonProperty
     private String contents;
 
-    // 질문 생성시간를 위한 컬럼 추가
-    private LocalDateTime createDate;
-
     public Answer() {
 
     }
@@ -49,40 +41,6 @@ public class Answer {
         this.writer = writer;
         this.question = question;
         this.contents = contents;
-        this.createDate = LocalDateTime.now();
-    }
-
-    public String getFormattedCreateDate() {
-        if (createDate == null) {
-            return "";
-        }
-        return createDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Answer)) {
-            return false;
-        }
-        Answer answer = (Answer) o;
-        return Objects.equals(id, answer.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "{" + " id='" + getId() + "'" + ", writer='" + getWriter() + "'" + ", contents='" + getContents() + "'"
-                + ", createDate='" + getCreateDate() + "'" + "}";
-    }
-
-    public Long getId() {
-        return this.id;
     }
 
     public User getWriter() {
@@ -93,12 +51,14 @@ public class Answer {
         return this.contents;
     }
 
-    public LocalDateTime getCreateDate() {
-        return this.createDate;
-    }
-
     public boolean isSameWriter(User loginUser) {
         return this.writer.equals(loginUser);
+    }
+
+    @Override
+    public String toString() {
+        return "{" + super.toString() + "'" + ", writer='" + getWriter() + "'" + ", contents='" + getContents() + "'"
+                + "'" + "}";
     }
 
 }

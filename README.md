@@ -1331,9 +1331,9 @@ public class Result {
 > - 6-1. AJAX를 활용해 답변 추가 기능 구현
 > - 6-2. AJAX를 활용해 답변 추가 기능 구현 2
 > - 6-3. AJAX를 활용해 답변 삭제 기능 구현
-> - 6-3. 질문 목록에 답변 수 보여주기 기능 추가
-> - 6-4. 중복 제거 및 리팩토링
-> - 6-5. JSON API 추가 및 테스트
+> - 6-4. 질문 목록에 답변 수 보여주기 기능 추가
+> - 6-5. 중복 제거 및 리팩토링
+> - 6-6. JSON API 추가 및 테스트
 > - 6-6. 쉘 스크립트를 활용해 배포 자동화
 
 
@@ -1566,5 +1566,93 @@ public void addAnswer() {
         return Result.ok();
 
     }
+```
+
+
+
+
+
+### 6-5. 중복제거 및 리팩토링
+
+### 메모
+
+```java 
+
+
+@MappedSuperclass
+// 데이터 변경사항 변경시 해당되는 날짜시간을 자동으로 입력해준다.
+@EntityListeners(AuditingEntityListener.class)
+public class AbstractEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @JsonProperty
+    private Long id;
+
+    @CreatedDate
+    private LocalDateTime createDate;
+    @LastModifiedDate
+    private LocalDateTime modifiedDate;
+
+    public Long getId() {
+        return this.id;
+    }
+
+    // 생성된 시간에 대한 formatted get 메소드 작성
+    // template 에서 {{ formattedC reateDate }} 로 사용 가능 하다
+    public String getFormattedCreateDate() {
+        return getFormattedDate(createDate, "yyyy.MM.dd HH:mm");
+    }
+
+    public String getModifiedDate() {
+        return getFormattedDate(modifiedDate, "yyyy.MM.dd HH:mm");
+    }
+
+    private String getFormattedDate(LocalDateTime dateTime, String format) {
+        if (dateTime == null) {
+            return "";
+        }
+        return dateTime.format(DateTimeFormatter.ofPattern(format));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof AbstractEntity)) {
+            return false;
+        }
+        AbstractEntity abstractEntity = (AbstractEntity) o;
+        return Objects.equals(id, abstractEntity.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "{" + " id='" + id + "'" + ", createDate='" + createDate + "'" + ", modifiedDate='" + modifiedDate + "'"
+                + "}";
+    }
+
+}
+```
+
+* AbstractEntity.java 클래스를 추가해서, 클래스에서 공통적인 부분을 부모클래스로 뽑는다.
+
+
+
+```java 
+@SpringBootApplication
+//아래 설정이 필요
+@EnableJpaAuditing
+public class KpjQnAApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(KpjQnAApplication.class, args);
+	}
+
+}
 ```
 

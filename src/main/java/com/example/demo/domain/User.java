@@ -14,11 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * User
  */
 @Entity // User 클래스에 데이터베이스와 매핑하는 애노테이션을 추가
-public class User {
-    @Id
-    @GeneratedValue
-    @JsonProperty
-    private Long id; // @Id로 primary key 지정, @GeneratedValue == Auto Increment
+public class User extends AbstractEntity {
 
     @Column(nullable = false, length = 20, unique = true) // null 관리
     @JsonProperty
@@ -32,10 +28,6 @@ public class User {
 
     @JsonProperty
     private String userEmail;
-
-    public Long getId() {
-        return this.id;
-    }
 
     public String getUserId() {
         return this.userId;
@@ -81,13 +73,7 @@ public class User {
             return false;
         }
 
-        return newId.equals(id);
-    }
-
-    @Override
-    public String toString() {
-        return "{" + " userId='" + getUserId() + "'" + ", userPassword='" + getUserPassword() + "'" + ", userName='"
-                + getUserName() + "'" + ", userEmail='" + getUserEmail() + "'" + "}";
+        return newId.equals(getId());
     }
 
     public void update(User newUser) {
@@ -99,19 +85,9 @@ public class User {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof User)) {
-            return false;
-        }
-        User user = (User) o;
-        return Objects.equals(id, user.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
+    public String toString() {
+        return "{" + super.toString() + " userId='" + getUserId() + "'" + ", userPassword='" + getUserPassword() + "'"
+                + ", userName='" + getUserName() + "'" + ", userEmail='" + getUserEmail() + "'" + "}";
     }
 
 }

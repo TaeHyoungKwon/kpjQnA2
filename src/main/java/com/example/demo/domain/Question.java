@@ -20,12 +20,7 @@ import javax.persistence.ForeignKey;
 
 //Question 모델 생성
 @Entity
-public class Question {
-
-    @Id
-    @GeneratedValue
-    @JsonProperty
-    private Long id;
+public class Question extends AbstractEntity {
 
     // 유저 한명에 대해서 질문은 여러개 있기 때문에 writer에 대한 질문:유저 ManyToOne관계를 해주고,
     @ManyToOne
@@ -42,10 +37,7 @@ public class Question {
     private String contents;
 
     @JsonProperty
-    private Integer countOfAnswer;
-
-    // 질문 생성시간를 위한 컬럼 추가
-    private LocalDateTime createDate;
+    private Integer countOfAnswer = 0;
 
     @OneToMany(mappedBy = "question")
     @OrderBy("id DESC")
@@ -55,26 +47,10 @@ public class Question {
 
     }
 
-    public Long getId() {
-        return id;
-
-    }
-
     public Question(User writer, String title, String contents) {
         this.writer = writer;
         this.title = title;
         this.contents = contents;
-        // 생성시간을 현재시간으로 초기화
-        this.createDate = LocalDateTime.now();
-    }
-
-    // 생성된 시간에 대한 formatted get 메소드 작성
-    // template 에서 {{ formattedC reateDate }} 로 사용 가능 하다
-    public String getFormattedCreateDate() {
-        if (createDate == null) {
-            return "";
-        }
-        return createDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm"));
     }
 
     public void update(String title, String contents) {
@@ -83,27 +59,7 @@ public class Question {
     }
 
     public boolean isSameWriter(User loginUser) {
-        System.out.println("==========isSameWrite==========");
-        System.out.println(loginUser.getId());
-        System.out.println(this.writer.getId());
-        System.out.println("==========isSameWrite==========");
         return this.writer.equals(loginUser);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this)
-            return true;
-        if (!(o instanceof Question)) {
-            return false;
-        }
-        Question question = (Question) o;
-        return Objects.equals(id, question.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 
     public void addAnswer() {
@@ -113,5 +69,4 @@ public class Question {
     public void minusAnswer() {
         this.countOfAnswer -= 1;
     }
-
 }
